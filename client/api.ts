@@ -1,2 +1,2 @@
-export const apiNextURl = "http://localhost:3001/api"
-export const apiURl = "http://api:8081"
+export const apiNextURl = "http://localhost:3001/api";
+export const apiURl = "http://api:8081";
