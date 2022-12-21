@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { apiNextURl, apiURl } from "../api";
 import { deleteCookie } from "../utils";
-import { Header } from "../components/Header/Header";
+import { CustomerInfo } from "../components/CustomerInfo/CustomerInfo";
+import { CustomerInfoProps } from "../components/CustomerInfo/interface";
+import * as S from "../styles/session";
 
 export default function Session() {
   const router = useRouter();
@@ -13,6 +15,7 @@ export default function Session() {
   });
 
   const { isFetching, message, user = {} } = state;
+  const [customers, setCustomers] = useState<CustomerInfoProps[]>();
 
   const getUserInfo = async () => {
     setState({ ...state, isFetching: true, message: "fetching details..." });
@@ -43,7 +46,7 @@ export default function Session() {
 
   useEffect(() => {
     getUserInfo();
-    createCustomer().then(() => getCustomers());
+    getCustomers();
   }, []);
 
   const getCustomers = async () => {
@@ -55,51 +58,24 @@ export default function Session() {
           Authorization: (window as any).token,
         },
       }).then((res) => res.json());
-      console.log("get data", await data);
-      return data;
+      if (!!data) setCustomers(data.customers);
     } catch (e) {
       console.error(e);
     }
   };
-
-  const createCustomer = async () => {
-    try {
-      const data = await fetch(`${apiNextURl}/customers`, {
-        method: "POST",
-        body: JSON.stringify({
-          name: "Costumer2",
-          email: "email@lalala.com",
-          customerID: 2,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: (window as any).token,
-        },
-      }).then((res) => res.json());
-      console.log("post data", await data);
-      return data;
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  console.log("customers", customers);
 
   return (
-    <div className="wrapper">
-      <h1>Welcome, {user && user.name}</h1>
-      {user && user.email}
-      <div className="message">
-        {isFetching ? "fetching details.." : message}
-      </div>
-
-      <button
-        style={{ height: "30px" }}
+    <S.SessionWrapper>
+      <S.LogoutButton
         onClick={() => {
           handleLogout();
         }}
       >
         logout
-      </button>
-      <Header></Header>
-    </div>
+      </S.LogoutButton>
+      <S.WelcomeTitle>Welcome, {user && user.name}</S.WelcomeTitle>
+      {customers && <CustomerInfo {...customers[0]} />}
+    </S.SessionWrapper>
   );
 }
