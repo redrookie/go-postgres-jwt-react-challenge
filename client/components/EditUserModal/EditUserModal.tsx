@@ -1,14 +1,18 @@
 import * as S from "./styles";
 import { EditUserModalProps } from "./interface";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiNextURl } from "../../api";
 
 export const EditUserModal = ({
   customer,
   isOpen,
   handleCloseClick,
+  handleDataSent,
 }: EditUserModalProps) => {
   const [infoChange, setInfoChange] = useState(customer);
+  useEffect(() => {
+    setInfoChange(customer);
+  }, [customer]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -33,7 +37,8 @@ export const EditUserModal = ({
           Authorization: (window as any).token,
         },
       }).then((res) => res.json());
-      //if (!!data) setcostumerInfo(infoChange);
+      handleCloseClick();
+      handleDataSent(infoChange);
     } catch (e) {
       console.error(e);
     }

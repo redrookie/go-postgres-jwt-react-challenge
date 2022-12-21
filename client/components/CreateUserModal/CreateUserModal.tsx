@@ -1,6 +1,6 @@
 import * as S from "./styles";
 import { CreateUserModalProps } from "./interface";
-import { CustomerInfoProps } from "../EditUserModal/interface";
+import { CreateCustomerInfoProps } from "../CreateUserModal/interface";
 import { useState } from "react";
 import { apiNextURl } from "../../api";
 
@@ -9,7 +9,7 @@ export const CreateUserModal = ({
   handleCloseClick,
   handleDataSent,
 }: CreateUserModalProps) => {
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfoProps>({
+  const [customerInfo, setCustomerInfo] = useState<CreateCustomerInfoProps>({
     name: "",
     email: "",
     telephone: "",
@@ -44,10 +44,18 @@ export const CreateUserModal = ({
           Authorization: (window as any).token,
         },
       }).then((res) => res.json());
-      handleCloseClick();
       setSending(false);
-      if (!!data) setCustomerInfo(customerInfo);
-      handleDataSent(customerInfo);
+      handleCloseClick();
+      setCustomerInfo({
+        name: "",
+        email: "",
+        telephone: "",
+        Location: {
+          country: "",
+          street1: "",
+        },
+      });
+      handleDataSent(customerInfo, data.customerID);
     } catch (e) {
       console.error(e);
     }
@@ -60,26 +68,31 @@ export const CreateUserModal = ({
       </S.CreateUserButton>
       <S.InputField
         name="name"
+        value={customerInfo.name}
         onChange={(e) => handleChange(e)}
         placeholder="Nome"
       ></S.InputField>
       <S.InputField
         name="email"
+        value={customerInfo.email}
         onChange={(e) => handleChange(e)}
         placeholder="Email"
       ></S.InputField>
       <S.InputField
         name="telephone"
+        value={customerInfo.telephone}
         onChange={(e) => handleChange(e)}
         placeholder="Telefone"
       ></S.InputField>
       <S.InputField
+        value={customerInfo.Location.country}
         name="Location.country"
         onChange={(e) => handleChange(e)}
         placeholder="País de origem"
       ></S.InputField>
       <S.InputField
         name="Location.street1"
+        value={customerInfo.Location.street1}
         onChange={(e) => handleChange(e)}
         placeholder="Endereço"
       ></S.InputField>

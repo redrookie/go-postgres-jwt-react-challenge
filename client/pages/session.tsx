@@ -5,8 +5,10 @@ import { deleteCookie } from "../utils";
 import { EditUserModal } from "../components/EditUserModal/EditUserModal";
 import { CreateUserModal } from "../components/CreateUserModal/CreateUserModal";
 import { CustomerInfoProps } from "../components/EditUserModal/interface";
+import { EditUserModalProps } from "../components/EditUserModal/interface";
 import { Infotable } from "../components/Infotable/Infotable";
 import * as S from "../static/session";
+import { CreateCustomerInfoProps } from "../components/CreateUserModal/interface";
 
 export default function Session() {
   const router = useRouter();
@@ -20,16 +22,17 @@ export default function Session() {
 
   const { isFetching, message, user = {} } = state;
   const [customers, setCustomers] = useState<CustomerInfoProps[]>();
-  const [currentEditedCustomer, setCurrentEditedCustomer] = useState({
-    customerID: 0,
-    name: "",
-    email: "",
-    telephone: "",
-    Location: {
-      country: "",
-      street1: "",
-    },
-  });
+  const [currentEditedCustomer, setCurrentEditedCustomer] =
+    useState<CustomerInfoProps>({
+      customerID: 0,
+      name: "",
+      email: "",
+      telephone: "",
+      Location: {
+        country: "",
+        street1: "",
+      },
+    });
 
   const getUserInfo = async () => {
     setState({ ...state, isFetching: true, message: "fetching details..." });
@@ -64,14 +67,12 @@ export default function Session() {
   }, []);
 
   const handleEditClick = (id: number | undefined) => {
+    console.log("a");
     const result = customers?.filter((elem) => {
       return elem.customerID === id;
     });
     if (!!result && result.length > 0 && result[0].customerID) {
-      setCurrentEditedCustomer({
-        ...result[0],
-        customerID: result[0].customerID,
-      });
+      setCurrentEditedCustomer(result[0]);
     }
     setIsEditModalOpen(true);
   };
@@ -84,8 +85,23 @@ export default function Session() {
     setIsCreateModalOpen(false);
   };
 
-  const handleDataSent = (newCustomer: CustomerInfoProps) => {
-    if (!!customers) setCustomers([...customers, newCustomer]);
+  const handleDataSentCreate = (
+    newCustomer: CreateCustomerInfoProps,
+    id: number
+  ) => {
+    if (!!customers)
+      setCustomers([...customers, { ...newCustomer, customerID: id }]);
+  };
+
+  const handleDataSentEdit = (customer: CustomerInfoProps) => {
+    const indexChanged = customers?.findIndex(
+      (elem) => elem.customerID === customer.customerID
+    );
+    const updatedCustomers = customers?.map((elem, index) => {
+      if (index === indexChanged) return customer;
+      return elem;
+    });
+    if (!!customer && customers) setCustomers(updatedCustomers);
   };
 
   const getCustomers = async () => {
@@ -118,12 +134,13 @@ export default function Session() {
           isOpen={isEditModalOpen}
           handleCloseClick={handleCloseEditModal}
           customer={currentEditedCustomer}
+          handleDataSent={handleDataSentEdit}
         />
       )}
       <CreateUserModal
         handleCloseClick={handleCloseCreateModal}
         isOpen={isCreateModalOpen}
-        handleDataSent={handleDataSent}
+        handleDataSent={handleDataSentCreate}
       />
       <S.SessionBody>
         <S.CreateUserButton onClick={() => setIsCreateModalOpen(true)}>

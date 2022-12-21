@@ -1,7 +1,15 @@
-import { CustomerInfoProps } from "../EditUserModal/interface";
-
 export type CreateUserModalProps = {
   isOpen: boolean;
   handleCloseClick: () => void;
-  handleDataSent: (customer: CustomerInfoProps) => void;
+  handleDataSent: (customer: CreateCustomerInfoProps, id: number) => void;
+};
+
+export type CreateCustomerInfoProps = {
+  name: string;
+  email: string;
+  telephone: string;
+  Location: {
+    country: string;
+    street1: string;
+  };
 };
