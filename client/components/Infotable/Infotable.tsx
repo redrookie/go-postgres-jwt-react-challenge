@@ -1,7 +1,7 @@
 import * as S from "./styles";
-import { CustomerArrayProps } from "./interface";
+import { InfoTableProps } from "./interface";
 
-export const Infotable = ({ list, onClickEdit }: CustomerArrayProps) => {
+export const Infotable = ({ list, onClickEdit }: InfoTableProps) => {
   if (!list) return null;
   return (
     <S.InfotableWrapper>

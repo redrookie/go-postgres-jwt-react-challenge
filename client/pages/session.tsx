@@ -67,7 +67,6 @@ export default function Session() {
   }, []);
 
   const handleEditClick = (id: number | undefined) => {
-    console.log("a");
     const result = customers?.filter((elem) => {
       return elem.customerID === id;
     });

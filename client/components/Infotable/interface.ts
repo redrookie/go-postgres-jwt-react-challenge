@@ -1,5 +1,5 @@
 import { CustomerInfoProps } from "../EditUserModal/interface";
-export type CustomerArrayProps = {
+export type InfoTableProps = {
   list: CustomerInfoProps[];
   onClickEdit: (e: number | undefined) => void;
 };
