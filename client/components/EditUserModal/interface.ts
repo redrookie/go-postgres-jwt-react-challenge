@@ -1,4 +1,5 @@
 export type CustomerInfoProps = {
+  customerID?: number;
   name: string;
   email: string;
   telephone: string;
@@ -6,4 +7,10 @@ export type CustomerInfoProps = {
     country: string;
     street1: string;
   };
+};
+
+export type EditUserModalProps = {
+  customer: CustomerInfoProps;
+  isOpen: boolean;
+  handleCloseClick: () => void;
 };

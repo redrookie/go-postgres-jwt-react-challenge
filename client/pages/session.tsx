@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { apiNextURl, apiURl } from "../api";
 import { deleteCookie } from "../utils";
-import { CustomerInfo } from "../components/CustomerInfo/CustomerInfo";
-import { CustomerInfoProps } from "../components/CustomerInfo/interface";
-import * as S from "../styles/session";
+import { EditUserModal } from "../components/EditUserModal/EditUserModal";
+import { CreateUserModal } from "../components/CreateUserModal/CreateUserModal";
+import { CustomerInfoProps } from "../components/EditUserModal/interface";
+import { Infotable } from "../components/Infotable/Infotable";
+import * as S from "../static/session";
 
 export default function Session() {
   const router = useRouter();
@@ -13,9 +15,21 @@ export default function Session() {
     message: null,
     user: null,
   });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { isFetching, message, user = {} } = state;
   const [customers, setCustomers] = useState<CustomerInfoProps[]>();
+  const [currentEditedCustomer, setCurrentEditedCustomer] = useState({
+    customerID: 0,
+    name: "",
+    email: "",
+    telephone: "",
+    Location: {
+      country: "",
+      street1: "",
+    },
+  });
 
   const getUserInfo = async () => {
     setState({ ...state, isFetching: true, message: "fetching details..." });
@@ -49,6 +63,31 @@ export default function Session() {
     getCustomers();
   }, []);
 
+  const handleEditClick = (id: number | undefined) => {
+    const result = customers?.filter((elem) => {
+      return elem.customerID === id;
+    });
+    if (!!result && result.length > 0 && result[0].customerID) {
+      setCurrentEditedCustomer({
+        ...result[0],
+        customerID: result[0].customerID,
+      });
+    }
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleDataSent = (newCustomer: CustomerInfoProps) => {
+    if (!!customers) setCustomers([...customers, newCustomer]);
+  };
+
   const getCustomers = async () => {
     try {
       const data = await fetch(`${apiNextURl}/customers`, {
@@ -63,7 +102,6 @@ export default function Session() {
       console.error(e);
     }
   };
-  console.log("customers", customers);
 
   return (
     <S.SessionWrapper>
@@ -75,7 +113,26 @@ export default function Session() {
         logout
       </S.LogoutButton>
       <S.WelcomeTitle>Welcome, {user && user.name}</S.WelcomeTitle>
-      {customers && <CustomerInfo {...customers[0]} />}
+      {customers && (
+        <EditUserModal
+          isOpen={isEditModalOpen}
+          handleCloseClick={handleCloseEditModal}
+          customer={currentEditedCustomer}
+        />
+      )}
+      <CreateUserModal
+        handleCloseClick={handleCloseCreateModal}
+        isOpen={isCreateModalOpen}
+        handleDataSent={handleDataSent}
+      />
+      <S.SessionBody>
+        <S.CreateUserButton onClick={() => setIsCreateModalOpen(true)}>
+          Adicionar cliente
+        </S.CreateUserButton>
+        {!!customers && customers.length > 0 ? (
+          <Infotable onClickEdit={handleEditClick} list={customers} />
+        ) : null}
+      </S.SessionBody>
     </S.SessionWrapper>
   );
 }
